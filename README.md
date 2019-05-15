@@ -14,7 +14,7 @@ This action opens a new issue from an issue template. It parses the template's f
 - `.WeekNumber`: ISO week number
 - `.Dates`: Array of the dates of the week (Can be used as `{{ index .Dates 1 }}` in the template)
 
-## Template Example
+## Template example
 
 ```
 ---
@@ -35,6 +35,10 @@ assignees: lowply
 ## {{ index .Dates 5 }} SAT
 ## {{ index .Dates 6 }} SUN
 ```
+
+## After post
+
+Once the API call succeeds, the [API response](https://developer.github.com/v3/issues/#response-3) will be saved at `$HOME/resp.json` so you can use it in the next action.
 
 ## Running locally for development
 
