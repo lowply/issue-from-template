@@ -205,6 +205,7 @@ func (i *IssueFromTemplate) parseYaml() error {
 
 func (i IssueFromTemplate) postComments() error {
 	for _, v := range i.Comments {
+		time.Sleep(1 * time.Second)
 		d, err := json.Marshal(v)
 		if err != nil {
 			return err
@@ -214,8 +215,6 @@ func (i IssueFromTemplate) postComments() error {
 		if err != nil {
 			return err
 		}
-
-		time.Sleep(1 * time.Second)
 	}
 	return nil
 }
