@@ -11,9 +11,8 @@ LABEL "repository"="https://github.com/lowply/issue-from-template"
 LABEL "homepage"="https://github.com/lowply/issue-from-template"
 LABEL "maintainer"="Sho Mizutani <lowply@github.com>"
 
-FROM alpine:3.9
+FROM alpine:latest AS runner
 RUN apk --no-cache add ca-certificates
-WORKDIR /root
 COPY --from=builder /go/bin/main /usr/local/bin/
 
 ADD entrypoint.sh /entrypoint.sh
