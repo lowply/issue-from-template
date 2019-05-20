@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 	"time"
@@ -18,16 +19,20 @@ import (
 )
 
 type IssueFromTemplate struct {
-	Config Config
-	Issue  Issue
+	Config   Config
+	Issue    Issue
+	Comments []Comment
+	Response []byte
 }
 
 type Config struct {
-	Token        string
-	Repository   string
-	TemplatePath string
-	ResponseFile string
-	Endpoint     string
+	Token             string
+	Repository        string
+	IssueTemplatePath string
+	Endpoint          string
+	Comments          bool
+	CommentsFilePath  string
+	CommentsURL       string
 }
 
 type Issue struct {
@@ -35,6 +40,10 @@ type Issue struct {
 	Body      string   `json:"body"`
 	Assignees []string `json:"assignees"`
 	Labels    []string `json:"labels"`
+}
+
+type Comment struct {
+	Body string `json:"body" yaml:"comment"`
 }
 
 func (i *IssueFromTemplate) setConfig() error {
@@ -54,16 +63,22 @@ func (i *IssueFromTemplate) setConfig() error {
 		return errors.New("IFT_TEMPLATE_NAME is empty")
 	}
 
-	i.Config.TemplatePath = os.Getenv("GITHUB_WORKSPACE") + "/.github/ISSUE_TEMPLATE/" + os.Getenv("IFT_TEMPLATE_NAME")
-	i.Config.ResponseFile = os.Getenv("HOME") + "/resp.json"
 	i.Config.Token = os.Getenv("GITHUB_TOKEN")
 	i.Config.Repository = os.Getenv("GITHUB_REPOSITORY")
 	i.Config.Endpoint = "https://api.github.com/repos/" + i.Config.Repository + "/issues"
+	i.Config.IssueTemplatePath = filepath.Join(os.Getenv("GITHUB_WORKSPACE"), ".github", "ISSUE_TEMPLATE", os.Getenv("IFT_TEMPLATE_NAME"))
+	i.Config.CommentsFilePath = filepath.Join(os.Getenv("GITHUB_WORKSPACE"), ".github", "ift-comments.yaml")
+	i.Config.Comments = true
+
+	_, err := os.Stat(i.Config.CommentsFilePath)
+	if err != nil {
+		i.Config.Comments = false
+	}
 
 	return nil
 }
 
-func (i *IssueFromTemplate) parseTemplate() (string, error) {
+func (i IssueFromTemplate) parseTemplate() (string, error) {
 	d := &struct {
 		Year          string
 		WeekStartDate string
@@ -82,7 +97,7 @@ func (i *IssueFromTemplate) parseTemplate() (string, error) {
 		d.Dates[i] = now.Monday().AddDate(0, 0, i).Format("01/02")
 	}
 
-	file, err := ioutil.ReadFile(i.Config.TemplatePath)
+	file, err := ioutil.ReadFile(i.Config.IssueTemplatePath)
 	if err != nil {
 		return "", err
 	}
@@ -138,47 +153,99 @@ func (i *IssueFromTemplate) generateIssue() error {
 	return nil
 }
 
-func (i IssueFromTemplate) post() error {
+func (i *IssueFromTemplate) postIssue() error {
 	d, err := json.Marshal(i.Issue)
 	if err != nil {
 		return err
 	}
 
-	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodPost, i.Config.Endpoint, bytes.NewReader(d))
+	resp, err := i.postToCreate(i.Config.Endpoint, d)
 	if err != nil {
 		return err
+	}
+
+	defer resp.Body.Close()
+
+	i.Response, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (i *IssueFromTemplate) extractURL() error {
+	d := &struct {
+		CommentsURL string `json:"comments_url"`
+	}{}
+
+	err := json.Unmarshal(i.Response, d)
+	if err != nil {
+		return err
+	}
+
+	i.Config.CommentsURL = d.CommentsURL
+
+	return nil
+}
+
+func (i *IssueFromTemplate) parseYaml() error {
+	c, err := ioutil.ReadFile(i.Config.CommentsFilePath)
+	if err != nil {
+		return err
+	}
+
+	err = yaml.UnmarshalStrict(c, &i.Comments)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (i IssueFromTemplate) postComments() error {
+	for _, v := range i.Comments {
+		d, err := json.Marshal(v)
+		if err != nil {
+			return err
+		}
+
+		_, err = i.postToCreate(i.Config.CommentsURL, d)
+		if err != nil {
+			return err
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+	return nil
+}
+
+func (i IssueFromTemplate) postToCreate(url string, data []byte) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
+	if err != nil {
+		return nil, err
 	}
 
 	req.Header.Add("Accept", "application/vnd.github.v3+json")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "token "+i.Config.Token)
 
+	fmt.Println("Posting " + url + " ...")
+
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if resp.StatusCode != 201 {
 		// Successful response code is 201 Created
-		return errors.New("Error creating an isue: " + resp.Status)
+		return nil, errors.New("Error posting to " + url + " : " + resp.Status)
 	}
 
-	defer resp.Body.Close()
+	fmt.Println("Done!\n" + string(data))
 
-	fmt.Println("Posted an issue:\n" + string(d))
-
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	err = ioutil.WriteFile(i.Config.ResponseFile, b, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return resp, nil
 }
 
 func main() {
@@ -194,8 +261,28 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = i.post()
+	err = i.postIssue()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if !i.Config.Comments {
+		os.Exit(0)
+	}
+
+	err = i.extractURL()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = i.parseYaml()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = i.postComments()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }

@@ -5,4 +5,4 @@ if [ -z "$GITHUB_TOKEN" ]; then
     exit 1
 fi
 
-/go/bin/main
+main

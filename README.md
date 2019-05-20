@@ -36,9 +36,23 @@ assignees: lowply
 ## {{ index .Dates 6 }} SUN
 ```
 
-## After post
+## Default comments
 
-Once the API call succeeds, the [API response](https://developer.github.com/v3/issues/#response-3) will be saved at `$HOME/resp.json` so you can use it in the next action.
+If the *.github/ift-comments.yaml* file exists, it also parses the content of the file and posts comments after creating the issue. This is useful for teams to have default comment to the issue. Here's an example of the comments in the YAML format:
+
+```
+- comment: |
+    ## Sales
+    Hello :wave: from the Sales team! Here's the [link](http://example.com) to the latest numbers.
+- comment: |
+    ## Support
+    - Tickets from company A: [URL](http://example.com)
+    - Tickets from company B: [URL](http://example.com)
+    - High priority tickets: [URL](http://example.com)
+- comment: |
+    ## Workplace
+    Hi everyone! Here's the latest news from us:
+```
 
 ## Running locally for development
 
