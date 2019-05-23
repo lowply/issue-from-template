@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 )
@@ -22,7 +23,7 @@ func NewRequest(statusCode int) *request {
 	return p
 }
 
-func (p *request) post(d []byte, url string) (*http.Response, error) {
+func (p *request) post(d []byte, url string) ([]byte, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(d))
 	if err != nil {
@@ -40,13 +41,18 @@ func (p *request) post(d []byte, url string) (*http.Response, error) {
 		return nil, err
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != p.statusCode {
 		return nil, errors.New("Error posting to " + url + " : " + resp.Status)
 	}
 
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	fmt.Println("Done!\n" + string(d))
 
-	defer resp.Body.Close()
-
-	return resp, nil
+	return responseBody, nil
 }

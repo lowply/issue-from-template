@@ -124,12 +124,7 @@ func (i *issue) post() (string, error) {
 		return "", err
 	}
 
-	resp, err := i.request.post(d, i.endpoint)
-	if err != nil {
-		return "", err
-	}
-
-	response, err := ioutil.ReadAll(resp.Body)
+	response, err := i.request.post(d, i.endpoint)
 	if err != nil {
 		return "", err
 	}
