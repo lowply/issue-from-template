@@ -6,8 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,12 +17,10 @@ import (
 )
 
 type issue struct {
-	token       string
-	repository  string
-	payload     payload
-	commentsURL string
-	endpoint    string
-	template    string
+	*request
+	endpoint string
+	template string
+	payload  payload
 }
 
 type payload struct {
@@ -34,13 +30,12 @@ type payload struct {
 	Labels    []string `json:"labels"`
 }
 
-func NewIssue() (*issue, error) {
-	i := &issue{}
-	i.token = os.Getenv("GITHUB_TOKEN")
-	i.repository = os.Getenv("GITHUB_REPOSITORY")
-	i.endpoint = "https://api.github.com/repos/" + i.repository + "/issues"
+func NewIssue() *issue {
+	r := NewRequest(201)
+	i := &issue{request: r}
+	i.endpoint = "https://api.github.com/repos/" + os.Getenv("GITHUB_REPOSITORY") + "/issues"
 	i.template = filepath.Join(os.Getenv("GITHUB_WORKSPACE"), ".github", "ISSUE_TEMPLATE", os.Getenv("IFT_TEMPLATE_NAME"))
-	return i, nil
+	return i
 }
 
 func (i issue) parseTemplate() (string, error) {
@@ -118,46 +113,20 @@ func (i *issue) generatePayload() error {
 	return nil
 }
 
-func (i *issue) post() error {
+func (i *issue) post() (string, error) {
 	err := i.generatePayload()
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	d, err := json.Marshal(i.payload)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodPost, i.endpoint, bytes.NewReader(d))
+	response, err := i.request.post(d, i.endpoint)
 	if err != nil {
-		return err
-	}
-
-	req.Header.Add("Accept", "application/vnd.github.v3+json")
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", "token "+i.token)
-
-	fmt.Println("Posting " + i.endpoint + " ...")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 201 {
-		// Successful response code is 201 Created
-		return errors.New("Error posting to " + i.endpoint + " : " + resp.Status)
-	}
-
-	fmt.Println("Done!\n" + string(d))
-
-	defer resp.Body.Close()
-
-	response, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+		return "", err
 	}
 
 	r := &struct {
@@ -166,10 +135,12 @@ func (i *issue) post() error {
 
 	err = json.Unmarshal(response, r)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	i.commentsURL = r.CommentsURL
+	if r.CommentsURL == "" {
+		return "", errors.New("comments_url is missing in the response")
+	}
 
-	return nil
+	return r.CommentsURL, nil
 }
