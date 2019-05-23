@@ -8,9 +8,8 @@ import (
 func main() {
 	env := []string{"GITHUB_TOKEN", "GITHUB_REPOSITORY", "GITHUB_WORKSPACE", "IFT_TEMPLATE_NAME"}
 	for _, e := range env {
-		_, ok := os.LookupEnv(e)
-		if !ok {
-			log.Fatal(e + "is empty")
+		if os.Getenv(e) == "" {
+			log.Fatal(e + " is empty")
 		}
 	}
 
