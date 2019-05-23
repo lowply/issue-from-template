@@ -20,14 +20,6 @@ type issue struct {
 	*request
 	endpoint string
 	template string
-	payload  payload
-}
-
-type payload struct {
-	Title     string   `json:"title"`
-	Body      string   `json:"body"`
-	Assignees []string `json:"assignees"`
-	Labels    []string `json:"labels"`
 }
 
 func NewIssue() *issue {
@@ -38,7 +30,7 @@ func NewIssue() *issue {
 	return i
 }
 
-func (i issue) parseTemplate() (string, error) {
+func (i *issue) parseTemplate() (string, error) {
 	d := &struct {
 		Year          string
 		WeekStartDate string
@@ -76,55 +68,54 @@ func (i issue) parseTemplate() (string, error) {
 	return b.String(), nil
 }
 
-func (i issue) splitAndTrimSpace(s string) []string {
-	arr := strings.Split(s, ",")
-	for i := range arr {
-		arr[i] = strings.TrimSpace(arr[i])
-	}
-	return arr
-}
-
-func (i *issue) generatePayload() error {
-	t := &struct {
-		Name      string `yaml:"name"`
-		About     string `yaml:"about"`
-		Title     string `yaml:"title"`
-		Labels    string `yaml:"labels"`
-		Assignees string `yaml:"assignees"`
-	}{}
-
+func (i *issue) generatePayload() ([]byte, error) {
 	templateBody, err := i.parseTemplate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	s := strings.Split(templateBody, "---\n")
 
+	t := &struct {
+		Name      string      `yaml:"name"`
+		About     string      `yaml:"about"`
+		Title     string      `yaml:"title"`
+		Labels    StringSlice `yaml:"labels"`
+		Assignees StringSlice `yaml:"assignees"`
+	}{}
+
 	err = yaml.UnmarshalStrict([]byte(s[1]), t)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	i.payload.Title = t.Title
-	i.payload.Body = strings.Replace(s[2], "\n", "", 1)
-	i.payload.Assignees = i.splitAndTrimSpace(t.Assignees)
-	i.payload.Labels = i.splitAndTrimSpace(t.Labels)
+	payload := &struct {
+		Title     string   `json:"title"`
+		Body      string   `json:"body"`
+		Assignees []string `json:"assignees"`
+		Labels    []string `json:"labels"`
+	}{}
 
-	return nil
+	payload.Title = t.Title
+	payload.Body = strings.Replace(s[2], "\n", "", 1)
+	payload.Assignees = t.Assignees.splitAndTrimSpace()
+	payload.Labels = t.Labels.splitAndTrimSpace()
+
+	d, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	return d, nil
 }
 
 func (i *issue) post() (string, error) {
-	err := i.generatePayload()
+	data, err := i.generatePayload()
 	if err != nil {
 		return "", err
 	}
 
-	d, err := json.Marshal(i.payload)
-	if err != nil {
-		return "", err
-	}
-
-	response, err := i.request.post(d, i.endpoint)
+	response, err := i.request.post(data, i.endpoint)
 	if err != nil {
 		return "", err
 	}
