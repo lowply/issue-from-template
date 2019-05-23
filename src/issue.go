@@ -34,13 +34,13 @@ type payload struct {
 	Labels    []string `json:"labels"`
 }
 
-func NewIssue() (*issue, error) {
+func NewIssue() *issue {
 	i := &issue{}
 	i.token = os.Getenv("GITHUB_TOKEN")
 	i.repository = os.Getenv("GITHUB_REPOSITORY")
 	i.endpoint = "https://api.github.com/repos/" + i.repository + "/issues"
 	i.template = filepath.Join(os.Getenv("GITHUB_WORKSPACE"), ".github", "ISSUE_TEMPLATE", os.Getenv("IFT_TEMPLATE_NAME"))
-	return i, nil
+	return i
 }
 
 func (i issue) parseTemplate() (string, error) {

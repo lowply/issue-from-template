@@ -22,7 +22,7 @@ type comment struct {
 	do         bool
 }
 
-func NewComnent(url string) (*comment, error) {
+func NewComnent(url string) *comment {
 	c := &comment{}
 	c.token = os.Getenv("GITHUB_TOKEN")
 	c.repository = os.Getenv("GITHUB_REPOSITORY")
@@ -33,7 +33,7 @@ func NewComnent(url string) (*comment, error) {
 	if err != nil {
 		c.do = false
 	}
-	return c, nil
+	return c
 }
 
 func (c comment) post() error {

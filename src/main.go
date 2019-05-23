@@ -22,21 +22,13 @@ func main() {
 		log.Fatal("IFT_TEMPLATE_NAME is empty")
 	}
 
-	i, err := NewIssue()
+	i := NewIssue()
+	err := i.post()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = i.post()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	c, err := NewComnent(i.commentsURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	c := NewComnent(i.commentsURL)
 	err = c.post()
 	if err != nil {
 		log.Fatal(err)
