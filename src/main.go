@@ -6,29 +6,21 @@ import (
 )
 
 func main() {
-	if os.Getenv("GITHUB_TOKEN") == "" {
-		log.Fatal("GITHUB_TOKEN is empty")
-	}
-
-	if os.Getenv("GITHUB_REPOSITORY") == "" {
-		log.Fatal("GITHUB_REPOSITORY is empty")
-	}
-
-	if os.Getenv("GITHUB_WORKSPACE") == "" {
-		log.Fatal("GITHUB_WORKSPACE is empty")
-	}
-
-	if os.Getenv("IFT_TEMPLATE_NAME") == "" {
-		log.Fatal("IFT_TEMPLATE_NAME is empty")
+	env := []string{"GITHUB_TOKEN", "GITHUB_REPOSITORY", "GITHUB_WORKSPACE", "IFT_TEMPLATE_NAME"}
+	for _, e := range env {
+		_, ok := os.LookupEnv(e)
+		if !ok {
+			log.Fatal(e + "is empty")
+		}
 	}
 
 	i := NewIssue()
-	err := i.post()
+	commentsURL, err := i.post()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	c := NewComnent(i.commentsURL)
+	c := NewComment(commentsURL)
 	err = c.post()
 	if err != nil {
 		log.Fatal(err)
