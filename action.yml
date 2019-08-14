@@ -1,0 +1,9 @@
+name: 'Issue From Template'
+author: 'Sho Mizutani <lowply@github.com>'
+description: 'A GitHub Action that opens an issue from an issue template'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'alert-circle'
+  color: 'green'

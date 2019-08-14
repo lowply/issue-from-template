@@ -1,16 +1,14 @@
-FROM golang:1
+FROM golang:1 as builder
 
-LABEL "com.github.actions.name"="Issue From Template"
-LABEL "com.github.actions.description"="Issue From Template"
-LABEL "com.github.actions.icon"="alert-circle"
-LABEL "com.github.actions.color"="green"
-LABEL "repository"="https://github.com/lowply/issue-from-template"
-LABEL "homepage"="https://github.com/lowply/issue-from-template"
-LABEL "maintainer"="Sho Mizutani <lowply@github.com>"
-
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
 WORKDIR /go/src
 COPY src .
 RUN GO111MODULE=on go build -o /go/bin/main
 
-ADD entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+FROM alpine
+RUN apk add --no-cache ca-certificates
+RUN update-ca-certificates
+COPY --from=builder /go/bin/main /bin/main
+ENTRYPOINT main
