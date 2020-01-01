@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -12,43 +11,26 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/jinzhu/now"
 	yaml "gopkg.in/yaml.v2"
 )
 
 type issue struct {
 	*request
+	*date
 	endpoint string
 	template string
 }
 
 func NewIssue() *issue {
-	r := NewRequest(201)
-	i := &issue{request: r}
+	i := &issue{}
+	i.request = NewRequest(201)
+	i.date = NewDate(time.Now())
 	i.endpoint = "https://api.github.com/repos/" + os.Getenv("GITHUB_REPOSITORY") + "/issues"
 	i.template = filepath.Join(os.Getenv("GITHUB_WORKSPACE"), ".github", "ISSUE_TEMPLATE", os.Getenv("IFT_TEMPLATE_NAME"))
 	return i
 }
 
 func (i *issue) parseTemplate() (string, error) {
-	d := &struct {
-		Year          string
-		WeekStartDate string
-		WeekEndDate   string
-		WeekNumber    string
-		Dates         [7]string
-	}{}
-
-	now.WeekStartDay = time.Monday
-	d.Year = now.BeginningOfYear().Format("2006")
-	d.WeekEndDate = now.EndOfSunday().Format("01/02")
-	d.WeekStartDate = now.BeginningOfWeek().Format("01/02")
-	_, isoweek := now.Monday().ISOWeek()
-	d.WeekNumber = fmt.Sprintf("%02d", isoweek)
-	for i, _ := range d.Dates {
-		d.Dates[i] = now.Monday().AddDate(0, 0, i).Format("01/02")
-	}
-
 	file, err := ioutil.ReadFile(i.template)
 	if err != nil {
 		return "", err
@@ -60,7 +42,7 @@ func (i *issue) parseTemplate() (string, error) {
 	}
 
 	b := new(bytes.Buffer)
-	err = t.Execute(b, d)
+	err = t.Execute(b, i.date)
 	if err != nil {
 		return "", err
 	}
