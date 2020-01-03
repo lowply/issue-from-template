@@ -1,6 +1,6 @@
 # Issue From Template
 
-This action opens a new issue from an issue template. It parses the template's front matter and the body, then posts [an API request to open an issue](https://developer.github.com/v3/issues/#create-an-issue). Works best with a [scheduled workflow](https://developer.github.com/actions/managing-workflows/creating-and-cancelling-a-workflow/#scheduling-a-workflow) and the [Auto Closer](https://github.com/lowply/auto-closer) action.
+This action opens a new issue from an issue template. It parses the template's front matter and the body, then posts [an API request to open an issue](https://developer.github.com/v3/issues/#create-an-issue). Works best with a [scheduled workflow](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/events-that-trigger-workflows#scheduled-events-schedule) and the [Auto Closer](https://github.com/lowply/auto-closer) action.
 
 ## Environment variables
 
