@@ -10,7 +10,6 @@ import (
 type date struct {
 	Year           string
 	WeekStartDate  string
-	WeekEndDate    string
 	WeekNumber     string
 	WeekNumberYear string
 	Dates          [7]string
@@ -25,7 +24,6 @@ func NewDate(t time.Time) *date {
 	n := nc.With(t)
 
 	d.Year = n.BeginningOfYear().Format("2006")
-	d.WeekEndDate = n.EndOfSunday().Format("01/02")
 	d.WeekStartDate = n.BeginningOfWeek().Format("01/02")
 	d.WeekStartDate = n.BeginningOfWeek().Format("2006/01/02")
 	_, isoweek := n.Monday().ISOWeek()
