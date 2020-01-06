@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/jinzhu/now"
@@ -9,6 +10,8 @@ import (
 
 type date struct {
 	Year           string
+	Month          string
+	Day            string
 	WeekStartDate  string
 	WeekNumber     string
 	WeekNumberYear string
@@ -23,8 +26,10 @@ func NewDate(t time.Time) *date {
 	}
 	n := nc.With(t)
 
-	d.Year = n.BeginningOfYear().Format("2006")
 	d.WeekStartDate = n.BeginningOfWeek().Format("01/02")
+	d.Year = strconv.Itoa(n.Year())
+	d.Month = fmt.Sprintf("%02d", int(n.Month()))
+	d.Day = fmt.Sprintf("%02d", n.Day())
 	d.WeekStartDate = n.BeginningOfWeek().Format("2006/01/02")
 	_, isoweek := n.Monday().ISOWeek()
 	d.WeekNumber = fmt.Sprintf("%02d", isoweek)

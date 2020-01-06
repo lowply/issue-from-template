@@ -8,8 +8,10 @@ This action opens a new issue from an issue template. It parses the template's f
 
 ## Available template variables
 
-- `.Year`: Year of the week
 - `.WeekStartDate`: Date of Monday of the week
+- `.Year`: Year of the day when this action runs
+- `.Month`: Month of the day when this action runs
+- `.Day`: Day when this action runs
 - `.WeekStartDate`: Date of Monday of the week (YYYY/MM/DD)
 - `.WeekNumber`: ISO week number
 - `.WeekNumberYear`: Year of the Thursday of the week. Matches with [ISO week number](https://en.wikipedia.org/wiki/ISO_week_date#First_week)
