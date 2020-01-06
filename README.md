@@ -8,7 +8,6 @@ This action opens a new issue from an issue template. It parses the template's f
 
 ## Available template variables
 
-- `.WeekStartDate`: Date of Monday of the week
 - `.Year`: Year of the day when this action runs
 - `.Month`: Month of the day when this action runs
 - `.Day`: Day when this action runs

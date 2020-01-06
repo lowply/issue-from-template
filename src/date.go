@@ -26,7 +26,6 @@ func NewDate(t time.Time) *date {
 	}
 	n := nc.With(t)
 
-	d.WeekStartDate = n.BeginningOfWeek().Format("01/02")
 	d.Year = strconv.Itoa(n.Year())
 	d.Month = fmt.Sprintf("%02d", int(n.Month()))
 	d.Day = fmt.Sprintf("%02d", n.Day())
