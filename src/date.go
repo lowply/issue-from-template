@@ -27,6 +27,7 @@ func NewDate(t time.Time) *date {
 	d.Year = n.BeginningOfYear().Format("2006")
 	d.WeekEndDate = n.EndOfSunday().Format("01/02")
 	d.WeekStartDate = n.BeginningOfWeek().Format("01/02")
+	d.WeekStartDate = n.BeginningOfWeek().Format("2006/01/02")
 	_, isoweek := n.Monday().ISOWeek()
 	d.WeekNumber = fmt.Sprintf("%02d", isoweek)
 	for j := range d.Dates {

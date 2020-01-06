@@ -11,6 +11,7 @@ This action opens a new issue from an issue template. It parses the template's f
 - `.Year`: Year of the week
 - `.WeekStartDate`: Date of Monday of the week
 - `.WeekEndDate`: Date of Sunday of the week
+- `.WeekStartDate`: Date of Monday of the week (YYYY/MM/DD)
 - `.WeekNumber`: ISO week number
 - `.WeekNumberYear`: Year of the Thursday of the week. Matches with [ISO week number](https://en.wikipedia.org/wiki/ISO_week_date#First_week)
 - `.Dates`: Array of the dates of the week (Can be used as `{{ index .Dates 1 }}` in the template)
@@ -21,7 +22,7 @@ This action opens a new issue from an issue template. It parses the template's f
 ---
 name: Weekly Report
 about: This is an example
-title: 'Report on {{ .WeekStartDate }} (Week {{ .WeekNumber }}, {{ .WeekNumberYear }})'
+title: 'Report for Week {{ .WeekNumber }}, {{ .WeekNumberYear }} (Week of {{ .WeekStartDate }})'
 labels: report
 assignees: lowply
 ---
