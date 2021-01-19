@@ -13,6 +13,7 @@ type date struct {
 	Month          string
 	Day            string
 	WeekStartDate  string
+	WeekEndDate    string
 	WeekNumber     string
 	WeekNumberYear string
 	Dates          [7]string
@@ -29,7 +30,11 @@ func NewDate(t time.Time) *date {
 	d.Year = strconv.Itoa(n.Year())
 	d.Month = fmt.Sprintf("%02d", int(n.Month()))
 	d.Day = fmt.Sprintf("%02d", n.Day())
-	d.WeekStartDate = n.BeginningOfWeek().Format("2006/01/02")
+
+	// https://github.com/jinzhu/now#mondaysunday
+	d.WeekStartDate = n.Monday().Format("2006/01/02")
+	d.WeekEndDate = n.Sunday().Format("2006/01/02")
+
 	_, isoweek := n.Monday().ISOWeek()
 	d.WeekNumber = fmt.Sprintf("%02d", isoweek)
 	// Thursday of the week, should be used with the week number
