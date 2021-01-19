@@ -32,8 +32,8 @@ func NewDate(t time.Time) *date {
 	d.Day = fmt.Sprintf("%02d", n.Day())
 
 	// https://github.com/jinzhu/now#mondaysunday
-	d.WeekStartDate = n.Monday().Format("2006/01/02")
-	d.WeekEndDate = n.Sunday().Format("2006/01/02")
+	d.WeekStartDate = n.Monday().Format("01/02")
+	d.WeekEndDate = n.Sunday().Format("01/02")
 
 	_, isoweek := n.Monday().ISOWeek()
 	d.WeekNumber = fmt.Sprintf("%02d", isoweek)
