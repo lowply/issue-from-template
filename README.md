@@ -12,8 +12,8 @@ This action opens a new issue from an issue template. It parses the template's f
 - `.Year`: Year of the day when this action runs
 - `.Month`: Month of the day when this action runs
 - `.Day`: Day when this action runs
-- `.WeekStartDate`: Date of Monday of the week (YYYY/MM/DD)
-- `.WeekEndDate`: Date of Sunday of the week (YYYY/MM/DD)
+- `.WeekStartDate`: Date of Monday of the week (MM/DD)
+- `.WeekEndDate`: Date of Sunday of the week (MM/DD)
 - `.WeekNumber`: ISO week number
 - `.WeekNumberYear`: Year of the Thursday of the week. Matches with [ISO week number](https://en.wikipedia.org/wiki/ISO_week_date#First_week)
 - `.Dates`: Array of the dates of the week (Can be used as `{{ index .Dates 1 }}` in the template)
