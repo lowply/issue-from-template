@@ -63,9 +63,10 @@ If the *.github/ift-comments.yaml* file exists, it also parses the content of th
 This is designed to be used as a GitHub Action, but you can also just run it locally with the following env vars:
 
 ```
+cd src
 export GITHUB_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 export GITHUB_REPOSITORY="owner/repository"
 export GITHUB_WORKSPACE="/path/to/your/local/repository"
 export IFT_TEMPLATE_NAME="issue.md"
-go run src/main.go
+go run .
 ```
