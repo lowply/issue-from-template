@@ -9,14 +9,16 @@ import (
 )
 
 type date struct {
-	Year           string
-	Month          string
-	Day            string
-	WeekStartDate  string
-	WeekEndDate    string
-	WeekNumber     string
-	WeekNumberYear string
-	Dates          [7]string
+	Year             string
+	Month            string
+	Day              string
+	WeekStartDate    string
+	WeekEndDate      string
+	WeekNumber       string
+	WeekNumberYear   string
+	WeekStartDateISO string
+	WeekEndDateISO   string
+	Dates            [7]string
 }
 
 func NewDate(t time.Time) *date {
@@ -34,6 +36,8 @@ func NewDate(t time.Time) *date {
 	// https://github.com/jinzhu/now#mondaysunday
 	d.WeekStartDate = n.Monday().Format("01/02")
 	d.WeekEndDate = n.Sunday().Format("01/02")
+	d.WeekStartDateISO = n.Monday().Format("2006-01-02")
+	d.WeekEndDateISO = n.Sunday().Format("2006-01-02")
 
 	_, isoweek := n.Monday().ISOWeek()
 	d.WeekNumber = fmt.Sprintf("%02d", isoweek)
