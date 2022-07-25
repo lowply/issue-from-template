@@ -5,7 +5,7 @@ ENV GOOS=linux
 ENV GOARCH=amd64
 WORKDIR /go/src
 COPY src .
-RUN GO111MODULE=on go build -o /go/bin/main
+RUN go build -o /go/bin/main
 
 FROM alpine
 RUN apk add --no-cache ca-certificates

@@ -17,7 +17,7 @@ import (
 
 type issue struct {
 	*request
-	*date
+	*data
 	endpoint string
 	template string
 }
@@ -26,13 +26,13 @@ func NewIssue() *issue {
 	i := &issue{}
 	i.request = NewRequest(201)
 	if os.Getenv("ADD_DATES") == "" {
-		i.date = NewDate(time.Now())
+		i.data = NewData(time.Now())
 	} else {
 		dates, err := strconv.Atoi(os.Getenv("ADD_DATES"))
 		if err != nil {
 			return nil
 		}
-		i.date = NewDate(time.Now().AddDate(0, 0, dates))
+		i.data = NewData(time.Now().AddDate(0, 0, dates))
 	}
 	i.endpoint = "https://api.github.com/repos/" + os.Getenv("GITHUB_REPOSITORY") + "/issues"
 	i.template = filepath.Join(os.Getenv("GITHUB_WORKSPACE"), ".github", "ISSUE_TEMPLATE", os.Getenv("IFT_TEMPLATE_NAME"))
@@ -51,7 +51,7 @@ func (i *issue) parseTemplate() (string, error) {
 	}
 
 	b := new(bytes.Buffer)
-	err = t.Execute(b, i.date)
+	err = t.Execute(b, i.data)
 	if err != nil {
 		return "", err
 	}

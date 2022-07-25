@@ -39,8 +39,8 @@ func TestNewDate(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		d := NewDate(now)
-		current := fmt.Sprintf("%v Week %v, Week of %v. Ends at %v. Year %v, Month %v, Day %v", d.WeekNumberYear, d.WeekNumber, d.WeekStartDate, d.WeekEndDate, d.Year, d.Month, d.Day)
+		d := NewData(now)
+		current := fmt.Sprintf("%v Week %v, Week of %v. Ends at %v. Year %v, Month %v, Day %v", d.YearOfTheWeek, d.WeekNumber, d.WeekStart.Format("01/02"), d.WeekEnd.Format("01/02"), d.Current.Format("2006"), d.Current.Format("01"), d.Current.Format("02"))
 		if current != v.should {
 			t.Fatalf("Actual: %v, Should: %v\n", current, v.should)
 		}

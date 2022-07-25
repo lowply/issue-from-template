@@ -1,6 +1,6 @@
 # Issue From Template
 
-This action opens a new issue from an issue template. It parses the template's front matter and the body, then posts [an API request to open an issue](https://developer.github.com/v3/issues/#create-an-issue). Works best with a [scheduled workflow](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/events-that-trigger-workflows#scheduled-events-schedule) and the [Auto Closer](https://github.com/lowply/auto-closer) action.
+This action opens a new issue from an issue template. It parses the template's front matter and the body, then posts [an API request to open an issue](https://docs.github.com/en/rest/issues/issues#create-an-issue). Works best with a [scheduled workflow](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) and the [Auto Closer](https://github.com/lowply/auto-closer) action.
 
 ## Environment variables
 
@@ -9,14 +9,18 @@ This action opens a new issue from an issue template. It parses the template's f
 
 ## Available template variables
 
-- `.Year`: Year of the day when this action runs
-- `.Month`: Month of the day when this action runs
-- `.Day`: Day when this action runs
-- `.WeekStartDate`: Date of Monday of the week (MM/DD)
-- `.WeekEndDate`: Date of Sunday of the week (MM/DD)
-- `.WeekNumber`: ISO week number
-- `.WeekNumberYear`: Year of the Thursday of the week. Matches with [ISO week number](https://en.wikipedia.org/wiki/ISO_week_date#First_week)
-- `.Dates`: Array of the dates of the week (Can be used as `{{ index .Dates 1 }}` in the template)
+- `.Current`: The day when this action runs (time.Time)
+- `.WeekStart`: Date of Monday of the week (time.Time)
+- `.WeekEnd`: Date of Sunday of the week (time.Time)
+- `.WeekNumber`: ISO week number (string)
+- `.YearOfTheWeek`: Year of the Thursday of the week. Matches with [ISO week number](https://en.wikipedia.org/wiki/ISO_week_date#First_week) (string)
+- `.Dates`: Array of the dates of the week (Can be used as `{{ index .Dates 1 }}` in the template, array of time.Time)
+
+For variables that are in the `time.Time` type, you can pick your preferred format in the template e.g. `.Format "2006-01-02"`. See https://pkg.go.dev/time#Time.Format for more details.
+
+### Date and time formatting layout
+
+If you're not familiar with Go's time.Time layouts, there are other resources you can use e.g. [Date and time format in Go (Golang) cheatsheet](https://gosamples.dev/date-time-format-cheatsheet/) but in short, **Monday, Jan 2nd, 2006** is the day used to express any formatting. So for example, if you want to format your date in `YYYY-MM-DD`, the format would be `2006-01-02`.
 
 ## Template example
 
@@ -24,20 +28,20 @@ This action opens a new issue from an issue template. It parses the template's f
 ---
 name: Weekly Report
 about: This is an example
-title: 'Report for Week {{ .WeekNumber }}, {{ .WeekNumberYear }} (Week of {{ .WeekStartDate }})'
+title: 'Report for Week {{ .WeekNumber }}, {{ .YearOfTheWeek }} (Week of {{ .WeekStartDate.Format "2006/01/02" }})'
 labels: report
 assignees: lowply
 ---
 
 # This week's updates!
 
-## {{ index .Dates 0 }} MON
-## {{ index .Dates 1 }} TUE
-## {{ index .Dates 2 }} WED
-## {{ index .Dates 3 }} THU
-## {{ index .Dates 4 }} FRI
-## {{ index .Dates 5 }} SAT
-## {{ index .Dates 6 }} SUN
+## {{ (index .Dates 0).Format "01/02 Mon" }}
+## {{ (index .Dates 1).Format "01/02 Mon" }}
+## {{ (index .Dates 2).Format "01/02 Mon" }}
+## {{ (index .Dates 3).Format "01/02 Mon" }}
+## {{ (index .Dates 4).Format "01/02 Mon" }}
+## {{ (index .Dates 5).Format "01/02 Mon" }}
+## {{ (index .Dates 6).Format "01/02 Mon" }}
 ```
 
 ## Default comments
