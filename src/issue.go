@@ -35,7 +35,7 @@ func NewIssue() *issue {
 		i.data = NewData(time.Now().AddDate(0, 0, dates))
 	}
 	i.endpoint = "https://api.github.com/repos/" + os.Getenv("GITHUB_REPOSITORY") + "/issues"
-	i.template = filepath.Join(os.Getenv("GITHUB_WORKSPACE"), ".github", "ISSUE_TEMPLATE", os.Getenv("IFT_TEMPLATE_NAME"))
+	i.template = filepath.Join(os.Getenv("GITHUB_WORKSPACE"), ".github", os.Getenv("IFT_TEMPLATE_NAME"))
 	return i
 }
 

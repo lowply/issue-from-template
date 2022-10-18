@@ -1,10 +1,12 @@
 # Issue From Template
 
-This action opens a new issue from an issue template. It parses the template's front matter and the body, then posts [an API request to open an issue](https://docs.github.com/en/rest/issues/issues#create-an-issue). Works best with a [scheduled workflow](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) and the [Auto Closer](https://github.com/lowply/auto-closer) action.
+This action opens a new issue from a markdown template file. It parses the template's front matter and the body, then posts [an API request to open an issue](https://docs.github.com/en/rest/issues/issues#create-an-issue). Works best with a [scheduled workflow](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) and the [Auto Closer](https://github.com/lowply/auto-closer) action.
+
+Note that "template" here is just a markdown file, not [GitHub's issue template feature](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates) which uses yaml file.
 
 ## Environment variables
 
-- `IFT_TEMPLATE_NAME` (*required*): The name of the issue template. For example, `report.md`. This action will look for the file in the `.github/ISSUE_TEMPLATE` directory.
+- `IFT_TEMPLATE_NAME` (*required*): The name of the issue template. For example, `report.md`. This action will look for the template file in the `.github` directory. **Note that it will not look for any sub directories** including the `.github/ISSUE_TEMPLATE` directory.
 - `ADD_DATES` (*optional*): Number of the dates to add. This is useful when you want to run this action to open an issue for the next week, not this week.
 
 ## Available template variables
