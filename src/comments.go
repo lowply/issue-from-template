@@ -2,10 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
-	"time"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -35,7 +33,7 @@ func (c comment) post() error {
 		return nil
 	}
 
-	f, err := ioutil.ReadFile(c.template)
+	f, err := os.ReadFile(c.template)
 	if err != nil {
 		return err
 	}
@@ -50,7 +48,6 @@ func (c comment) post() error {
 	}
 
 	for _, v := range *comments {
-		time.Sleep(1 * time.Second)
 		d, err := json.Marshal(v)
 		if err != nil {
 			return err
