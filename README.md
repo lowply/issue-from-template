@@ -2,10 +2,19 @@
 
 This action opens a new issue from an issue template. It parses the template's front matter and the body, then posts [an API request to open an issue](https://docs.github.com/en/rest/issues/issues#create-an-issue). Works best with a [scheduled workflow](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) and the [Auto Closer](https://github.com/lowply/auto-closer) action.
 
-## Environment variables
+## Usage
 
-- `IFT_TEMPLATE_NAME` (*required*): The name of the issue template. For example, `report.md`. This action will look for the file in the `.github/ISSUE_TEMPLATE` directory.
-- `ADD_DATES` (*optional*): Number of the dates to add. This is useful when you want to run this action to open an issue for the next week, not this week.
+```yaml
+- uses: lowply/issue-from-template@v0.3.0
+  with:
+    template-name: report.md
+    # add-dates: 1  # Optional: number of days to add to current date
+```
+
+## Inputs
+
+- `template-name` (*required*): The name of the issue template. For example, `report.md`. This action will look for the file in the `.github/ISSUE_TEMPLATE` directory.
+- `add-dates` (*optional*): Number of the days to add. This is useful when you want to run this action to open an issue for the next week, not this week.
 
 ## Available template variables
 

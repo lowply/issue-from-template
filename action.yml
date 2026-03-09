@@ -1,9 +1,47 @@
 name: 'Issue From Template'
 author: 'Sho Mizutani <lowply@github.com>'
 description: 'A GitHub Action that opens an issue from an issue template'
+inputs:
+  template-name:
+    description: 'The name of the issue template file (e.g. report.md). Looked up in .github/ISSUE_TEMPLATE/.'
+    required: true
+  add-dates:
+    description: 'Number of days to add to the current date. Useful for creating issues for the next week.'
+    required: false
+    default: ''
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: ${{ github.action_path }}/src/go.mod
+        cache: false
+
+    - name: Hash go.sum
+      id: go-sum-hash
+      shell: bash
+      run: echo "hash=$(sha256sum ${{ github.action_path }}/src/go.sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ steps.go-sum-hash.outputs.hash }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Run issue-from-template
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+        IFT_TEMPLATE_NAME: ${{ inputs.template-name }}
+        ADD_DATES: ${{ inputs.add-dates }}
+      run: go run -C ${{ github.action_path }}/src .
 branding:
   icon: 'alert-circle'
   color: 'green'

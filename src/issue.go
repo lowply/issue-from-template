@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -40,7 +39,7 @@ func NewIssue() *issue {
 }
 
 func (i *issue) parseTemplate() (string, error) {
-	file, err := ioutil.ReadFile(i.template)
+	file, err := os.ReadFile(i.template)
 	if err != nil {
 		return "", err
 	}
