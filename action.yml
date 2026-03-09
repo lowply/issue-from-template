@@ -16,6 +16,7 @@ runs:
       uses: actions/setup-go@v5
       with:
         go-version-file: ${{ github.action_path }}/src/go.mod
+        cache-dependency-path: ${{ github.action_path }}/src/go.sum
 
     - name: Run issue-from-template
       shell: bash
