@@ -18,13 +18,18 @@ runs:
         go-version-file: ${{ github.action_path }}/src/go.mod
         cache: false
 
+    - name: Hash go.sum
+      id: go-sum-hash
+      shell: bash
+      run: echo "hash=$(sha256sum ${{ github.action_path }}/src/go.sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
     - name: Cache Go modules
       uses: actions/cache@v4
       with:
         path: |
           ~/go/pkg/mod
           ~/.cache/go-build
-        key: ${{ runner.os }}-go-${{ hashFiles(format('{0}/src/go.sum', github.action_path)) }}
+        key: ${{ runner.os }}-go-${{ steps.go-sum-hash.outputs.hash }}
         restore-keys: |
           ${{ runner.os }}-go-
 
